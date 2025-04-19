@@ -45,12 +45,14 @@ struct ContentView: View {
 
 struct HomeView: View {
     var body: some View {
-        ZStack {
-            
-            
+        // Purple header
+        ZStack(alignment: .top) {
+            Color.purple
+                .ignoresSafeArea()
+                .frame(height: 112)
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Header
+                    // Header text
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Welcome, John Doe")
@@ -69,7 +71,6 @@ struct HomeView: View {
                             .foregroundColor(.white)
                     }
                     .padding()
-                    .background(Color.purple)
                     
                     // Issued Documents
                     HStack {
@@ -95,33 +96,40 @@ struct HomeView: View {
                     }
                     
                     
-                    // Credentials Wallet Banner
-                    ZStack {
+                    // Trending News Banner (auto-sizing)
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("File your Taxes by April 15")
+                                .font(.headline)
+
+                            Text("The IRS reminds all citizens to submit federal tax returns before the deadline. Late filings may incur penalties.")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+
+                            Button("Learn More") {
+                                // action
+                            }
+                            .padding(8)
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "creditcard.fill")
+                            .resizable()
+                            .frame(width: 70, height: 50)
+                            .foregroundColor(.purple)
+                            .padding(.horizontal)
+                    }
+                    .padding()
+                    .background(
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.purple.opacity(0.1))
-                            .frame(height: 120)
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text("Your Credentials Wallet")
-                                    .font(.headline)
-                                Text("All your identity cards in one place")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                Button("View All Credentials") {}
-                                    .padding(8)
-                                    .background(Color.purple)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                            }
-                            Spacer()
-                            Image(systemName: "creditcard.fill")
-                                .resizable()
-                                .frame(width: 50, height: 35)
-                                .foregroundColor(.purple)
-                        }
-                        .padding()
-                    }
+                    )
                     .padding(.horizontal)
+
                     
                     // Utilities Section
                     Text("US Digital Locker Utility")
@@ -129,13 +137,13 @@ struct HomeView: View {
                         .padding(.horizontal)
                     
                     LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
-                        UtilityCard(icon: "folder.fill", title: "Drive")
-                        UtilityCard(icon: "doc.text.viewfinder", title: "Credentials")
-                        UtilityCard(icon: "building.columns.fill", title: "Gov. Employee")
+                        UtilityCard(icon: "car.fill", title: "DMV")
+                        UtilityCard(icon: "building.columns.fill", title: "State")
+                        UtilityCard(icon: "creditcard.fill", title: "IRS")
                         
-                        UtilityCard(icon: "key.fill", title: "Passport")
-                        UtilityCard(icon: "doc.richtext.fill", title: "Certificates")
-                        UtilityCard(icon: "star.fill", title: "Favorites")
+                        UtilityCard(icon: "heart.text.square.fill", title: "Health")
+                        UtilityCard(icon: "person.text.rectangle", title: "SSA")
+                        UtilityCard(icon: "graduationcap.fill", title: "Education")
                     }
                     .padding(.horizontal)
                 }
