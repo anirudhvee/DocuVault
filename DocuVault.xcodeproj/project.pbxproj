@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A379BF082DB453BD00AD5360 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = A379BF072DB453BD00AD5360 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A379BEF92DB4530E00AD5360 /* DocuVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DocuVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A379BF072DB453BD00AD5360 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		A379BEF02DB4530E00AD5360 = {
 			isa = PBXGroup;
 			children = (
+				A379BF072DB453BD00AD5360 /* .gitignore */,
 				A379BEFB2DB4530E00AD5360 /* DocuVault */,
 				A379BEFA2DB4530E00AD5360 /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A379BF082DB453BD00AD5360 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
