@@ -7,84 +7,79 @@
 
 import SwiftUI
 
-struct IssuedDocumentsView: View {
-    @State private var searchText: String = ""
+struct SearchDocumentView: View {
+    let trendingDocs = ["Driving License", "Tax Return", "Social Security Card"]
 
     var body: some View {
-        ZStack {
-            // Background Color (Soft pastel)
-            Color(red: 0.95, green: 0.97, blue: 1.0) // Light pastel blue
-                .ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color(red: 0.95, green: 0.97, blue: 1.0).ignoresSafeArea() // Pastel background
 
-            VStack(alignment: .leading, spacing: 20) {
-                // Top Title
-                Text("DocuVault")
-                    .font(.system(size: 34, weight: .bold))
-                    .padding(.top, 50)
-                    .padding(.horizontal)
-
-                // Search Bar
-                TextField("Search documents...", text: $searchText)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(12)
-                    .shadow(radius: 2)
-                    .padding(.horizontal)
-
-                // Trending Documents Section
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Trending Documents")
-                        .font(.title3)
+                VStack(alignment: .leading, spacing: 20) {
+                    // Header
+                    Text("DocuVault")
+                        .font(.largeTitle)
                         .bold()
+                        .padding(.top, 50)
+                        .padding(.horizontal)
+
+                    // Search Bar
+                    TextField("Search for documents", text: .constant(""))
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .shadow(radius: 1)
+                        .padding(.horizontal)
+
+                    // Trending Buttons
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(trendingDocs, id: \.self) { doc in
+                                NavigationLink(destination: GetDocumentView(documentName: doc)) {
+                                    Label(doc, systemImage: "arrow.up.right")
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal)
+                                        .background(Color.white)
+                                        .cornerRadius(25)
+                                        .shadow(radius: 1)
+                                }
+                            }
+                        }.padding(.horizontal)
+                    }
+
+                    // Most Popular Section
+                    Text("Most Popular Documents")
+                        .font(.headline)
                         .padding(.horizontal)
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            TrendingBox(title: "Driving License")
-                            TrendingBox(title: "W-2 Tax Form")
-                            TrendingBox(title: "Social Security Card")
-                        }
-                        .padding(.horizontal)
+                            ForEach(trendingDocs, id: \.self) { doc in
+                                NavigationLink(destination: GetDocumentView(documentName: doc)) {
+                                    VStack {
+                                        Image(systemName: "doc.text.fill")
+                                            .resizable()
+                                            .frame(width: 50, height: 50)
+                                            .padding()
+                                            .foregroundColor(.blue)
+
+                                        Text(doc)
+                                            .font(.caption)
+                                            .multilineTextAlignment(.center)
+                                            .foregroundColor(.black)
+                                    }
+                                    .frame(width: 140, height: 120)
+                                    .background(Color.white)
+                                    .cornerRadius(20)
+                                    .shadow(radius: 3)
+                                }
+                            }
+                        }.padding(.horizontal)
                     }
 
-                    Text("Newly Added")
-                        .font(.title3)
-                        .bold()
-                        .padding(.horizontal)
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            TrendingBox(title: "Passport Renewal")
-                            TrendingBox(title: "Medical Insurance Card")
-                        }
-                        .padding(.horizontal)
-                    }
+                    Spacer()
                 }
-
-                Spacer()
             }
         }
-    }
-}
-
-struct TrendingBox: View {
-    let title: String
-
-    var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "doc.text.fill")
-                .font(.system(size: 28))
-                .foregroundColor(.blue)
-
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.black)
-        }
-        .frame(width: 140, height: 100)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
     }
 }
