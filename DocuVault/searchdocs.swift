@@ -6,19 +6,6 @@
 //
 
 import SwiftUI
-struct DocumentItem: Identifiable {
-    let id = UUID()
-    let icon: String
-    let title: String
-    let location: String
-}
-
-struct DepartmentSection: Identifiable {
-    let id = UUID()
-    let title: String
-    let documents: [DocumentItem]
-}
-
 
 struct SearchDocumentView: View {
     let trendingDocs = ["Tax Return","Driving License", "Social Security Card"]
