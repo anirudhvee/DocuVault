@@ -6,9 +6,22 @@
 //
 
 import SwiftUI
+struct DocumentItem: Identifiable {
+    let id = UUID()
+    let icon: String
+    let title: String
+    let location: String
+}
+
+struct DepartmentSection: Identifiable {
+    let id = UUID()
+    let title: String
+    let documents: [DocumentItem]
+}
+
 
 struct SearchDocumentView: View {
-    let trendingDocs = ["Driving License", "Tax Return", "Social Security Card"]
+    let trendingDocs = ["Tax Return","Driving License", "Social Security Card"]
 
     var body: some View {
         NavigationStack {
@@ -81,5 +94,66 @@ struct SearchDocumentView: View {
                 }
             }
         }
+    }
+}
+struct GetDocumentView: View {
+    let documentName: String
+    @State private var licenseNumber = ""
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Title
+                Text(documentName)
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.top)
+
+                // Example Fields
+                Group {
+                    Text("Name (from ID)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Text("John Doe")
+
+                    Text("Date of Birth (from ID)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    Text("1995-08-14")
+
+                    Text("\(documentName) Number *")
+                    TextField("Example: XYZ123456", text: $licenseNumber)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+
+                // Consent
+                HStack {
+                    Image(systemName: "checkmark.square.fill")
+                        .foregroundColor(.green)
+                    Text("I provide my consent to DocuVault to fetch my documents.")
+                        .font(.footnote)
+                }
+
+                // Get Button
+                Button(action: {
+                    // Add your backend logic here
+                }) {
+                    Text("GET DOCUMENT")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.purple)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                }
+                .padding(.top)
+
+                Spacer()
+            }
+            .padding()
+        }
+        .navigationTitle("Get Document")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
