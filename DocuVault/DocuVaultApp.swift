@@ -11,7 +11,7 @@ import SwiftUI
 struct DocuVaultApp: App {
     var body: some Scene {
         WindowGroup {
-            DocuVaultView()
+            IssuedDocumentsView()
         }
     }
 }
