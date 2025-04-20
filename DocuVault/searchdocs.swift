@@ -4,7 +4,10 @@ import UIKit          // for UINotificationFeedbackGenerator
 import AudioToolbox   // for AudioServicesPlaySystemSound
 struct SearchDocumentView: View {
     @State private var searchText = ""
-    let Documents: [Document] = [
+    @EnvironmentObject var documentStore: DocumentStore
+    
+    // Available documents that can be added
+    private let availableDocuments: [Document] = [
         Document(name: "Driver's License", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
         Document(name: "Vehicle Registration", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
         Document(name: "Health Insurance", issuer: "Anthem Blue Cross", logoAsset: "anthem", hasVersionHistory: true, fileURL: nil),
@@ -14,18 +17,22 @@ struct SearchDocumentView: View {
         Document(name: "Social Security Card", issuer: "SSA", logoAsset: "ssa", hasVersionHistory: true, fileURL: nil),
         Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil)
     ]
-
+    
+    init(initialSearch: String = "") {
+        _searchText = State(initialValue: initialSearch)
+    }
 
     var filteredGroupedByIssuer: [String: [Document]] {
         let lowercasedSearch = searchText.lowercased()
-
-        let filtered = Documents.filter { doc in
+        
+        // Filter based on search text only
+        let searchFiltered = availableDocuments.filter { doc in
             searchText.isEmpty || // Show all if empty
             doc.name.lowercased().contains(lowercasedSearch) ||
             doc.issuer.lowercased().contains(lowercasedSearch)
         }
 
-        return Dictionary(grouping: filtered, by: { $0.issuer })
+        return Dictionary(grouping: searchFiltered, by: { $0.issuer })
     }
 
     var body: some View {
@@ -111,7 +118,6 @@ struct SearchDocumentView: View {
 // MARK: - Detail Page
 struct GetDocumentView: View {
     @State private var showSuccessOverlay = false
-
     let documentName: String
     @State private var licenseNumber = ""
     @State private var isConsentGiven = false
@@ -158,40 +164,36 @@ struct GetDocumentView: View {
                     }
                     
                     Button {
-                         triggerSuccessAnimation {
-                             if let details = documentStore.getDocumentDetails(for: documentName) {
-                                 let newDoc = Document(
-                                     name: documentName,
-                                     issuer: details.issuer,
-                                     logoAsset: details.logoAsset,
-                                     hasVersionHistory: true,
-                                     fileURL: nil
-                                 )
-                                 documentStore.addDocument(newDoc)
-                                 dismiss()
-                             }
-                         }
-                     } label: {
-                         Text("GET DOCUMENT")
-                             .frame(maxWidth: .infinity)
-                             .padding()
-                             .background(Color.purple)
-                             .foregroundColor(.white)
-                             .cornerRadius(12)
-                     }
-                     .disabled(!isConsentGiven ||
-                               licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
-                     .opacity((isConsentGiven &&
-                               !licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
-                              ? 1.0 : 0.5)
-                     .padding(.top)
-
-                     Spacer()
-                 }
-                 .padding()
-             }
-
-            // Success overlay
+                        triggerSuccessAnimation {
+                            if let details = documentStore.getDocumentDetails(for: documentName) {
+                                let newDoc = Document(
+                                    name: documentName,
+                                    issuer: details.issuer,
+                                    logoAsset: details.logoAsset,
+                                    hasVersionHistory: true,
+                                    fileURL: nil
+                                )
+                                documentStore.addDocument(newDoc)
+                                dismiss()
+                            }
+                        }
+                    } label: {
+                        Text("GET DOCUMENT")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .disabled(!isConsentGiven || licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity((isConsentGiven && !licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty) ? 1.0 : 0.5)
+                    .padding(.top)
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+            
             if showSuccessOverlay {
                 Color.black.opacity(0.5).ignoresSafeArea()
                 Image(systemName: "checkmark.circle.fill")
@@ -199,15 +201,13 @@ struct GetDocumentView: View {
                     .frame(width: 120, height: 120)
                     .foregroundColor(.green)
                     .scaleEffect(showSuccessOverlay ? 1.0 : 0.5)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.6),
-                               value: showSuccessOverlay)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showSuccessOverlay)
             }
         }
         .navigationTitle("Get Document")
         .navigationBarTitleDisplayMode(.inline)
     }
     
-
     private func triggerSuccessAnimation(andThen completion: @escaping ()->Void) {
         showSuccessOverlay = true
         UINotificationFeedbackGenerator().notificationOccurred(.success)
