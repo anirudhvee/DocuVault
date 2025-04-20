@@ -47,10 +47,11 @@ struct PDFPreviewController: UIViewControllerRepresentable {
         @objc func share() {
             let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
 
-            if let topVC = UIApplication.shared.windows.first?.rootViewController?.presentedViewController {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topVC = windowScene.windows.first?.rootViewController?.presentedViewController {
                 topVC.present(activityVC, animated: true)
-            } else {
-                UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
+            } else if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                windowScene.windows.first?.rootViewController?.present(activityVC, animated: true)
             }
         }
     }
@@ -58,7 +59,7 @@ struct PDFPreviewController: UIViewControllerRepresentable {
 
 
 struct Document: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     var name: String
     var issuer: String
     var logoAsset: String
