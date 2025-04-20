@@ -208,10 +208,11 @@ struct IssuerDocumentsView: View {
                     ForEach(documents) { doc in
                         NavigationLink(destination: GetDocumentView(documentName: doc.name)) {
                             HStack(spacing: 12) {
-                                Image(systemName: "doc.text.fill")
+                                Image(doc.logoAsset)
                                     .resizable()
-                                    .frame(width: 30, height: 30)
-                                    .foregroundColor(.green)
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 36, height: 36)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
                                 VStack(alignment: .leading) {
                                     Text(doc.name)
