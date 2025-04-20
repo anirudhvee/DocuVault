@@ -8,17 +8,17 @@ Meet DocuVault - our vision for modern document management that brings clarity t
 
 > **Important Note**: DocuVault is a prototype created for HackDavis 2025 to demonstrate the concept of unified document management. This is not a production application and has no affiliation with any government agencies, financial institutions, or document issuers (DMV, IRS, SSA, insurance providers, etc.). All branding elements and references are used for demonstration purposes only.
 
-## Why DocuVault? 🎯
+## Why DocuVault?
 
 Let's face it - keeping track of important documents is a hassle. They're scattered across email, physical papers, and various websites. We've built this prototype to explore how document management could be more enjoyable. Here's what makes our concept different:
 
-- 🔐 **Everything in One Place**: From scanned documents to official papers, everything lives in one clean, organized space
-- 📅 **Smart Organization**: Documents are automatically sorted and tagged so you can find them in seconds
-- 🔍 **Quick Search**: Find any document instantly - no more digging through folders or emails
-- 📱 **Built for Mobile**: A smooth, native iOS experience that feels natural and intuitive
-- 📊 **Version History**: Keep track of document updates without the confusion
+- **Everything in One Place**: From scanned documents to official papers, everything lives in one clean, organized space
+- **Smart Organization**: Documents are automatically sorted and tagged so you can find them in seconds
+- **Quick Search**: Find any document instantly - no more digging through folders or emails
+- **Built for Mobile**: A smooth, native iOS experience that feels natural and intuitive
+- **Version History**: Keep track of document updates without the confusion
 
-## Technical Implementation 🛠️
+## Technical Implementation
 
 ### Built With
 - **Frontend**: SwiftUI and UIKit

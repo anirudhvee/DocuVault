@@ -52,7 +52,7 @@ struct SearchDocumentView: View {
 
                     TextField("Enter the name of a document to add", text: $searchText)
                         .padding()
-                        .background(Color.white)
+                        .background(Color(.systemGray6))
                         .cornerRadius(12)
                         .shadow(radius: 1)
                         .padding(.horizontal)
@@ -100,7 +100,7 @@ struct SearchDocumentView: View {
                                             .padding(.trailing, 8)
                                     }
                                     .padding()
-                                    .background(Color.white)
+                                    .background(Color(.systemGray6))
                                     .cornerRadius(12)
                                     .shadow(radius: 1)
                                     .padding(.horizontal)
@@ -114,7 +114,6 @@ struct SearchDocumentView: View {
                 }
                 .padding(.bottom, 40)
             }
-            .background(Color(red: 0.95, green: 0.97, blue: 1.0).ignoresSafeArea())
         }
     }
 }
@@ -190,7 +189,7 @@ struct GetDocumentView: View {
                         Text("GET DOCUMENT")
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color("AppPrimary"))
                             .foregroundColor(.white)
                             .cornerRadius(12)
                     }
@@ -303,7 +302,7 @@ struct IssuerDocumentsView: View {
                                     .padding(.trailing, 8)
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color(.systemGray6))
                             .cornerRadius(12)
                             .shadow(radius: 1)
                             .padding(.horizontal)
@@ -313,6 +312,5 @@ struct IssuerDocumentsView: View {
                 .padding(.top)
             }
         }
-        .background(Color(red: 0.95, green: 0.97, blue: 1.0).ignoresSafeArea())
     }
 }

@@ -360,7 +360,7 @@ struct DocumentPickerView: UIViewControllerRepresentable {
 }
 
 
-extension UIImage: Identifiable {
+extension UIImage: @retroactive Identifiable {
     public var id: UUID { UUID() }
 }
 

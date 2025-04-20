@@ -306,7 +306,7 @@ struct DocumentCard: View {
             }
             .padding()
             .frame(width: 200, height: 100)
-            .background(Color.white)
+            .background(Color(.systemGray6))
             .cornerRadius(15)
             .shadow(radius: 4)
         }
