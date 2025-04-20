@@ -1,11 +1,13 @@
 import SwiftUI
-import SwiftUI
 import UIKit          // for UINotificationFeedbackGenerator
 import AudioToolbox   // for AudioServicesPlaySystemSound
 
 struct SearchDocumentView: View {
     @State private var searchText = ""
-    let Documents: [Document] = [
+    @EnvironmentObject var documentStore: DocumentStore
+    
+    // Available documents that can be added
+    private let availableDocuments: [Document] = [
         Document(name: "Driver's License", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
         Document(name: "Vehicle Registration", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
         Document(name: "Health Insurance", issuer: "Anthem Blue Cross", logoAsset: "anthem", hasVersionHistory: true, fileURL: nil),
@@ -15,18 +17,22 @@ struct SearchDocumentView: View {
         Document(name: "Social Security Card", issuer: "SSA", logoAsset: "ssa", hasVersionHistory: true, fileURL: nil),
         Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil)
     ]
-
+    
+    init(initialSearch: String = "") {
+        _searchText = State(initialValue: initialSearch)
+    }
 
     var filteredGroupedByIssuer: [String: [Document]] {
         let lowercasedSearch = searchText.lowercased()
-
-        let filtered = Documents.filter { doc in
+        
+        // Filter based on search text only
+        let searchFiltered = availableDocuments.filter { doc in
             searchText.isEmpty || // Show all if empty
             doc.name.lowercased().contains(lowercasedSearch) ||
             doc.issuer.lowercased().contains(lowercasedSearch)
         }
 
-        return Dictionary(grouping: filtered, by: { $0.issuer })
+        return Dictionary(grouping: searchFiltered, by: { $0.issuer })
     }
 
     var body: some View {
@@ -114,6 +120,7 @@ struct GetDocumentView: View {
     @State private var showSuccessOverlay = false
     @State private var showLoadingDialog = false
     @State private var moveRightLeft = false
+  
     let documentName: String
     @State private var licenseNumber = ""
     @State private var isConsentGiven = false
@@ -161,6 +168,7 @@ struct GetDocumentView: View {
                     
                     Button {
                         triggerLoadingThenSuccessAnimation {
+
                             if let details = documentStore.getDocumentDetails(for: documentName) {
                                 let newDoc = Document(
                                     name: documentName,

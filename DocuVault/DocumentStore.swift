@@ -4,6 +4,7 @@ class DocumentStore: ObservableObject {
     @Published var documents: [Document] = [] {
         didSet {
             saveDocuments()
+            objectWillChange.send()
         }
     }
     
@@ -42,10 +43,12 @@ class DocumentStore: ObservableObject {
     func addDocument(_ document: Document) {
         if !documents.contains(where: { $0.name == document.name && $0.issuer == document.issuer }) {
             documents.append(document)
+            objectWillChange.send()
         }
     }
     
     func removeDocument(_ document: Document) {
         documents.removeAll { $0.id == document.id }
+        objectWillChange.send()
     }
 } 
