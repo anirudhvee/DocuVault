@@ -20,24 +20,24 @@ struct ContentView: View {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
-
+            
             Text("Issued")
                 .tabItem {
                     Image(systemName: "doc.plaintext.fill")
                     Text("Issued")
                 }
-
+            
             Text("Uploaded")
                 .tabItem {
                     Image(systemName: "tray.and.arrow.down.fill")
                     Text("Uploaded")
                 }
-
+            
             Text("Setting")
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
-                        
+                    
                 }
         }
     }
@@ -45,21 +45,16 @@ struct ContentView: View {
 
 struct HomeView: View {
     var body: some View {
-        // Purple header
-        ZStack(alignment: .top) {
-            Color.purple
-                .ignoresSafeArea()
-                .frame(height: 112)
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header text
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack {
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Welcome, John Doe")
                                 .font(.title)
                                 .bold()
                                 .foregroundColor(.white)
-                            Text("Digital IDs are valid per the U.S. E-Sign Act, 2000")
+                            Text("Your")
                                 .foregroundColor(.white)
                                 .font(.subheadline)
                         }
@@ -71,8 +66,12 @@ struct HomeView: View {
                             .foregroundColor(.white)
                     }
                     .padding()
-                    
-                    // Issued Documents
+                }
+                .background(Color.purple)
+                .padding(.bottom, 10)
+                
+                // Issued Documents
+                VStack (spacing : 5){
                     HStack {
                         Text("Pinned Documents")
                             .font(.headline)
@@ -92,60 +91,74 @@ struct HomeView: View {
                             DocumentCard(title: "Driver's License", id: "xxxxxxxx1234", issuer: "Department of Motor Vehicles")
                             DocumentCard(title: "Social Security", id: "xxx-xx-6789", issuer: "SSA")
                         }
-                        .padding()
-                    }
-                    
-                    
-                    // Trending News Banner (auto-sizing)
-                    HStack(alignment: .center) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("File your Taxes by April 15")
-                                .font(.headline)
-
-                            Text("The IRS reminds all citizens to submit federal tax returns before the deadline. Late filings may incur penalties.")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-
-                            Button("Learn More") {
-                                // action
-                            }
-                            .padding(8)
-                            .background(Color.purple)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-
-                        Spacer()
-
-                        Image(systemName: "creditcard.fill")
-                            .resizable()
-                            .frame(width: 70, height: 50)
-                            .foregroundColor(.purple)
-                            .padding(.horizontal)
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.purple.opacity(0.1))
-                    )
-                    .padding(.horizontal)
-
-                    
-                    // Utilities Section
-                    Text("US Digital Locker Utility")
-                        .font(.headline)
+                        .padding(.vertical, 8)
                         .padding(.horizontal)
-                    
-                    LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
-                        UtilityCard(icon: "car.fill", title: "DMV")
-                        UtilityCard(icon: "building.columns.fill", title: "State")
-                        UtilityCard(icon: "creditcard.fill", title: "IRS")
-                        
-                        UtilityCard(icon: "heart.text.square.fill", title: "Health")
-                        UtilityCard(icon: "person.text.rectangle", title: "SSA")
-                        UtilityCard(icon: "graduationcap.fill", title: "Education")
                     }
+                    
+                }
+
+                // Trending News Banner
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("File your Taxes by April 15")
+                            .font(.headline)
+                        
+                        Text("The IRS reminds everyone to submit federal tax returns before the deadline. Late filings may incur penalties.")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        
+                        Button("Learn More") {
+                            // action
+                        }
+                        .padding(8)
+                        .background(Color.purple)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "creditcard.fill")
+                        .resizable()
+                        .frame(width: 70, height: 50)
+                        .foregroundColor(.purple)
+                        .padding(.horizontal)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.purple.opacity(0.1))
+                )
+                .padding(.horizontal)
+                
+                
+                // Utilities Section
+                Text("US Digital Locker Utility")
+                    .font(.headline)
                     .padding(.horizontal)
+                
+                LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]) {
+                    UtilityCard(icon: "dmv", title: "DMV")
+                    UtilityCard(icon: "caliseal", title: "State")
+                    UtilityCard(icon: "irs", title: "IRS")
+                    
+                    UtilityCard(icon: "anthem", title: "Health")
+                    UtilityCard(icon: "ssa", title: "SSA")
+                    UtilityCard(icon: "ucdavis", title: "Education")
+                }
+                .padding(.horizontal)
+                
+                HStack {
+                    Spacer()
+                    Button("See More") {
+                        // action
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.purple)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    Spacer()
                 }
             }
         }
@@ -156,7 +169,7 @@ struct DocumentCard: View {
     var title: String
     var id: String
     var issuer: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
@@ -177,23 +190,27 @@ struct DocumentCard: View {
 }
 
 struct UtilityCard: View {
-    var icon: String
-    var title: String
-
+    var icon: String          // Name of the image or SF Symbol
+    var title: String         // Title under the icon
+    
     var body: some View {
         VStack {
-            Image(systemName: icon)
+            
+            Image(icon) // Use image asset
                 .resizable()
-                .frame(width: 35, height: 35)
-                .padding()
+                .frame(width: 50, height: 50)
+                .padding(13.5)
                 .background(Color.gray.opacity(0.2))
                 .cornerRadius(10)
+            
+            
             Text(title)
                 .font(.caption)
         }
         .padding(8)
     }
 }
+
 
 #Preview {
     ContentView()
