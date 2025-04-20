@@ -252,7 +252,8 @@ struct GetDocumentView: View {
             showLoadingDialog = false
             showSuccessOverlay = true
             UINotificationFeedbackGenerator().notificationOccurred(.success)
-            AudioServicesPlaySystemSound(1104)
+            let applePayLikeSound: SystemSoundID = 1322
+            AudioServicesPlaySystemSound(applePayLikeSound)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 withAnimation {
                     showSuccessOverlay = false
