@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftUI
 import UIKit          // for UINotificationFeedbackGenerator
 import AudioToolbox   // for AudioServicesPlaySystemSound
+
 struct SearchDocumentView: View {
     @State private var searchText = ""
     let Documents: [Document] = [
@@ -111,7 +112,8 @@ struct SearchDocumentView: View {
 // MARK: - Detail Page
 struct GetDocumentView: View {
     @State private var showSuccessOverlay = false
-
+    @State private var showLoadingDialog = false
+    @State private var moveRightLeft = false
     let documentName: String
     @State private var licenseNumber = ""
     @State private var isConsentGiven = false
@@ -158,63 +160,92 @@ struct GetDocumentView: View {
                     }
                     
                     Button {
-                         triggerSuccessAnimation {
-                             if let details = documentStore.getDocumentDetails(for: documentName) {
-                                 let newDoc = Document(
-                                     name: documentName,
-                                     issuer: details.issuer,
-                                     logoAsset: details.logoAsset,
-                                     hasVersionHistory: true,
-                                     fileURL: nil
-                                 )
-                                 documentStore.addDocument(newDoc)
-                                 dismiss()
-                             }
-                         }
-                     } label: {
-                         Text("GET DOCUMENT")
-                             .frame(maxWidth: .infinity)
-                             .padding()
-                             .background(Color.purple)
-                             .foregroundColor(.white)
-                             .cornerRadius(12)
-                     }
-                     .disabled(!isConsentGiven ||
-                               licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
-                     .opacity((isConsentGiven &&
-                               !licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
-                              ? 1.0 : 0.5)
-                     .padding(.top)
+                        triggerLoadingThenSuccessAnimation {
+                            if let details = documentStore.getDocumentDetails(for: documentName) {
+                                let newDoc = Document(
+                                    name: documentName,
+                                    issuer: details.issuer,
+                                    logoAsset: details.logoAsset,
+                                    hasVersionHistory: true,
+                                    fileURL: nil
+                                )
+                                documentStore.addDocument(newDoc)
+                                dismiss()
+                            }
+                        }
+                    } label: {
+                        Text("GET DOCUMENT")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .disabled(!isConsentGiven || licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity((isConsentGiven && !licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty) ? 1.0 : 0.5)
+                    .padding(.top)
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+            
+            if showLoadingDialog || showSuccessOverlay {
+                Color.black.opacity(0.4).ignoresSafeArea()
+                VStack(spacing: 20) {
+                    if showSuccessOverlay {
+                        Image(systemName: "checkmark.circle")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(.white)
+                            .scaleEffect(showSuccessOverlay ? 1.0 : 0.6)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showSuccessOverlay)
 
-                     Spacer()
-                 }
-                 .padding()
-             }
-
-            // Success overlay
-            if showSuccessOverlay {
-                Color.black.opacity(0.5).ignoresSafeArea()
-                Image(systemName: "checkmark.circle.fill")
-                    .resizable()
-                    .frame(width: 120, height: 120)
-                    .foregroundColor(.green)
-                    .scaleEffect(showSuccessOverlay ? 1.0 : 0.5)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.6),
-                               value: showSuccessOverlay)
+                        Text("Document Retrieved!")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                    } else {
+                        Text("Fetching Document...")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        ZStack {
+                            Capsule()
+                                .frame(width: 128, height: 6)
+                                .foregroundColor(Color(.systemGray4))
+                            Capsule()
+                                .clipShape(Rectangle().offset(x: moveRightLeft ? 80 : -80))
+                                .frame(width: 100, height: 6)
+                                .foregroundColor(Color(.systemBlue))
+                                .offset(x: moveRightLeft ? 14 : -14)
+                                .animation(Animation.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: moveRightLeft)
+                        }
+                    }
+                }
+                .frame(width: 260, height: 160)
+                .background(Color.black.opacity(0.85))
+                .cornerRadius(16)
+                .onAppear {
+                    moveRightLeft.toggle()
+                }
             }
         }
         .navigationTitle("Get Document")
         .navigationBarTitleDisplayMode(.inline)
     }
     
-
-    private func triggerSuccessAnimation(andThen completion: @escaping ()->Void) {
-        showSuccessOverlay = true
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        AudioServicesPlaySystemSound(1104)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation { showSuccessOverlay = false }
-            completion()
+    private func triggerLoadingThenSuccessAnimation(andThen completion: @escaping () -> Void) {
+        showLoadingDialog = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            showLoadingDialog = false
+            showSuccessOverlay = true
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            AudioServicesPlaySystemSound(1104)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation {
+                    showSuccessOverlay = false
+                }
+                completion()
+            }
         }
     }
 }
