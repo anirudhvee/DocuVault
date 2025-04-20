@@ -5,27 +5,63 @@ import JWTDecode
 struct LoginView: View {
     @AppStorage("userName") var userName: String = ""
     @AppStorage("userPicture") var userPicture: String = ""
-    //@State private var isLoggedIn: Bool = false //used for testing, does not save across app restarts
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
+    @State private var showLoginButton = false
+
     var body: some View {
-        VStack(spacing: 30) {
-            Text("Welcome to DocuVault")
-                .font(.title)
-                .bold()
+        ZStack {
+            Color.appPrimary
+                .ignoresSafeArea()
 
-            Button(action: login) {
-                Text("Login")
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.purple)
-                    .cornerRadius(10)
+            VStack(spacing: 24) {
+                Spacer()
+
+                VStack(spacing: 12) {
+                    Image(systemName: "lock.shield.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.white)
+
+                    Image("docuvault")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 60) // or any size you want
+
+                    Text("All your documents, in one place.")
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                    Spacer().frame(height: 60) // ✅ pushes the button upward
+
+                }
+
+                Spacer()
+
+                if showLoginButton {
+                    Button(action: login) {
+                        Text("Login")
+                            .foregroundColor(.black)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
-            .padding(.horizontal, 40)
-
+            .padding()
         }
-        .padding()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation(.easeOut(duration: 0.5)) {
+                    showLoginButton = true
+                }
+            }
+        }
     }
 
     func login() {
