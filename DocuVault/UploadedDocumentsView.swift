@@ -67,7 +67,7 @@ struct UploadedDocumentsView: View {
                 }
             }
             .listStyle(.plain)
-            .navigationTitle("Uploaded Documents")
+            .navigationTitle("My Documents")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
@@ -79,7 +79,7 @@ struct UploadedDocumentsView: View {
                             showingFileImporter = true
                         }
                     } label: {
-                        Image(systemName: "plus")
+                        Image(systemName: "document.badge.plus")
                             .font(.title2)
                     }
                 }
