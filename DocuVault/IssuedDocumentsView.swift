@@ -75,9 +75,8 @@ struct IssuedDocumentsView: View {
     @EnvironmentObject var documentStore: DocumentStore
     @State private var searchText = ""
     @State private var selectedDocumentURL: IdentifiableURL? = nil
-    
-    
-    
+    @State private var showingVersionHistoryFor: Document? = nil
+  
     var filteredDocuments: [Document] {
         if searchText.isEmpty {
             return documentStore.documents
@@ -96,70 +95,54 @@ struct IssuedDocumentsView: View {
                     .cornerRadius(10)
                     .padding(.horizontal)
                 
-                List(filteredDocuments) { doc in
-                    Button(action: {
-                        let fileName = doc.name.lowercased()
-                            .replacingOccurrences(of: " ", with: "_")
-                            .replacingOccurrences(of: "'", with: "")
-                        
-                        if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
-                            selectedDocumentURL = IdentifiableURL(url: url)
-                           
-                        } else {
-               
-                        }
-                    }){
-                        HStack {
-                            if let uiImage = UIImage(named: doc.logoAsset) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } else {
-                                Image(systemName: "doc.text") // fallback system icon
-                                    .resizable()
-                                    .frame(width: 40, height: 40)
-                                    .foregroundColor(.purple)
-                            }
+                List {
+                    ForEach(filteredDocuments) { doc in
+                        Button(action: {
+                            let fileName = doc.name.lowercased()
+                                .replacingOccurrences(of: " ", with: "_")
+                                .replacingOccurrences(of: "'", with: "")
                             
-                            VStack(alignment: .leading) {
-                                Text(doc.name)
-                                    .font(.headline)
-                                Text(doc.issuer)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
+                                selectedDocumentURL = IdentifiableURL(url: url)
                             }
-                            Spacer()
-                            
-                            Menu {
-                                
-                                if doc.hasVersionHistory {
-                                    Button("View Previous Versions") {
-                                        // TODO: Navigate to version list
-                                        print("View versions for \(doc.name)")
-                                    }
+                        }) {
+                            HStack {
+                                if let uiImage = UIImage(named: doc.logoAsset) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                } else {
+                                    Image(systemName: "doc.text")
+                                        .resizable()
+                                        .frame(width: 40, height: 40)
+                                        .foregroundColor(Color("AppPrimary"))
                                 }
                                 
-                                Button("Remove Document", role: .destructive) {
-                                    documentStore.removeDocument(doc)
-                                }
-                            } label: {
-                                HStack {
-                                    Spacer(minLength: 0) // Fill horizontal space
-                                    Image(systemName: "ellipsis")
-                                        .rotationEffect(.degrees(90))
-                                        .font(.system(size: 22, weight: .medium))
+                                VStack(alignment: .leading) {
+                                    Text(doc.name)
+                                        .font(.headline)
+                                    Text(doc.issuer)
+                                        .font(.caption)
                                         .foregroundColor(.gray)
-                                        .frame(width: 88, height: 44) // Tap target size
-                                        .contentShape(Rectangle())
                                 }
-                                .frame(width: 60, alignment: .trailing)
+                                Spacer()
+                                if doc.hasVersionHistory {
+                                    Button(action: {
+                                        showingVersionHistoryFor = doc
+                                    }) {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .foregroundColor(Color("AppPrimary"))
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                }
+
                             }
+                            .padding(.vertical, 5)
                         }
-                        .padding(.vertical, 5)
                     }
-                    .listStyle(PlainListStyle())
+                    .onDelete(perform: deleteDocument)
                 }
                 .navigationTitle("Issued Documents")
                 .sheet(item: $selectedDocumentURL) { identifiable in
@@ -170,8 +153,83 @@ struct IssuedDocumentsView: View {
                         }
                     )
                 }
+                .sheet(item: $showingVersionHistoryFor) { doc in
+                    NavigationView {
+                        List {
+
+                            ForEach(0..<3, id: \.self) { i in
+                                //BUTTON SHOULD OPEN UP ORIGINAL DOCUMENT
+                                Button(action: {
+                                    // First, dismiss the version history sheet
+                                    showingVersionHistoryFor = nil
+
+                                    // Then open the PDF after a slight delay
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        let fileName = (doc.name + "_v\(i + 1)")
+                                            .lowercased()
+                                            .replacingOccurrences(of: " ", with: "_")
+                                            .replacingOccurrences(of: "'", with: "")
+
+                                        if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
+                                            selectedDocumentURL = IdentifiableURL(url: url)
+                                        } else if let fallbackURL = Bundle.main.url(forResource: doc.name.lowercased().replacingOccurrences(of: " ", with: "_"), withExtension: "pdf") {
+                                            selectedDocumentURL = IdentifiableURL(url: fallbackURL)
+                                        }
+                                    }
+                                }) {
+                                    HStack {
+                                        if let uiImage = UIImage(named: doc.logoAsset) {
+                                            Image(uiImage: uiImage)
+                                                .resizable()
+                                                .frame(width: 45, height: 45)
+                                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        } else {
+                                            Image(systemName: "doc.text")
+                                                .resizable()
+                                                .frame(width: 35, height: 45)
+                                                .foregroundColor(Color("AppPrimary"))
+                                        }
+                                        
+                                        // placeholder version control dates
+                                        Text(
+                                            i == 0 ? "Mar 20, 2025 at 12:00 PM" :
+                                            i == 1 ? "Jan 15, 2024 at 9:30 AM" :
+                                            i == 2 ? "Sep 3, 2023 at 3:45 PM" :
+                                            "Jul 27, 2022 at 11:15 AM"
+                                        )
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding(.vertical, 6)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+
+                            
+                        }
+                        .navigationTitle("Previous Versions")
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Close") {
+                                    showingVersionHistoryFor = nil
+                                }
+                            }
+                        }
+                    }
+                }
+
                 
             }
+        }
+    }
+    
+    func deleteDocument(at offsets: IndexSet) {
+        for index in offsets {
+            let doc = filteredDocuments[index]
+            documentStore.removeDocument(doc)
         }
     }
 }
