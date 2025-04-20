@@ -29,8 +29,17 @@ struct SearchDocumentView: View {
         Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil)
     ]
 
-    var groupedByIssuer: [String: [Document]] {
-        Dictionary(grouping: Documents, by: { $0.issuer })
+
+    var filteredGroupedByIssuer: [String: [Document]] {
+        let lowercasedSearch = searchText.lowercased()
+
+        let filtered = Documents.filter { doc in
+            searchText.isEmpty || // Show all if empty
+            doc.name.lowercased().contains(lowercasedSearch) ||
+            doc.issuer.lowercased().contains(lowercasedSearch)
+        }
+
+        return Dictionary(grouping: filtered, by: { $0.issuer })
     }
 
     var body: some View {
@@ -50,7 +59,7 @@ struct SearchDocumentView: View {
                         .shadow(radius: 1)
                         .padding(.horizontal)
 
-                    ForEach(groupedByIssuer.keys.sorted(), id: \.self) { issuer in
+                    ForEach(filteredGroupedByIssuer.keys.sorted(), id: \.self) { issuer in
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text(issuer)
@@ -58,7 +67,7 @@ struct SearchDocumentView: View {
                                 Spacer()
                                 NavigationLink(destination: IssuerDocumentsView(
                                     issuer: issuer,
-                                    documents: groupedByIssuer[issuer] ?? [])
+                                    documents: filteredGroupedByIssuer[issuer] ?? [])
                                 ) {
                                     Text("View All")
                                         .font(.subheadline)
@@ -67,7 +76,7 @@ struct SearchDocumentView: View {
                             }
                             .padding(.horizontal)
 
-                            ForEach(groupedByIssuer[issuer]!) { doc in
+                            ForEach(filteredGroupedByIssuer[issuer]!) { doc in
                                 NavigationLink(destination: GetDocumentView(documentName: doc.name)) {
                                     HStack(spacing: 12) {
                                         Image(doc.logoAsset)
