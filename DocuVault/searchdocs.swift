@@ -1,5 +1,7 @@
 import SwiftUI
-
+import SwiftUI
+import UIKit          // for UINotificationFeedbackGenerator
+import AudioToolbox   // for AudioServicesPlaySystemSound
 struct SearchDocumentView: View {
     @State private var searchText = ""
     let Documents: [Document] = [
@@ -108,6 +110,8 @@ struct SearchDocumentView: View {
 
 // MARK: - Detail Page
 struct GetDocumentView: View {
+    @State private var showSuccessOverlay = false
+
     let documentName: String
     @State private var licenseNumber = ""
     @State private var isConsentGiven = false
@@ -115,73 +119,103 @@ struct GetDocumentView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text(documentName)
-                    .font(.largeTitle)
-                    .bold()
-                    .padding(.top)
-
-                Group {
-                    Text("Name (from ID)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Text("John Doe")
-
-                    Text("Date of Birth (from ID)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Text("1995-08-14")
-
-                    Text("\(documentName) Number *")
-                    TextField("Example: XYZ123456", text: $licenseNumber)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                }
-
-                Button(action: {
-                    isConsentGiven.toggle()
-                }) {
-                    HStack {
-                        Image(systemName: isConsentGiven ? "checkmark.square.fill" : "square")
-                            .foregroundColor(isConsentGiven ? .green : .gray)
-                        Text("I provide my consent to DocuVault to fetch my documents.")
-                            .font(.footnote)
-                            .foregroundColor(.primary)
+        ZStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text(documentName)
+                        .font(.largeTitle)
+                        .bold()
+                        .padding(.top)
+                    
+                    Group {
+                        Text("Name (from ID)")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        Text("John Doe")
+                        
+                        Text("Date of Birth (from ID)")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        Text("1995-08-14")
+                        
+                        Text("\(documentName) Number *")
+                        TextField("Example: XYZ123456", text: $licenseNumber)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8)
                     }
-                }
-
-                Button(action: {
-                    if let details = documentStore.getDocumentDetails(for: documentName) {
-                        let newDocument = Document(
-                            name: documentName,
-                            issuer: details.issuer,
-                            logoAsset: details.logoAsset,
-                            hasVersionHistory: true,
-                            fileURL: nil // We'll implement file handling later
-                        )
-                        documentStore.addDocument(newDocument)
-                        dismiss()
+                    
+                    Button(action: {
+                        isConsentGiven.toggle()
+                    }) {
+                        HStack {
+                            Image(systemName: isConsentGiven ? "checkmark.square.fill" : "square")
+                                .foregroundColor(isConsentGiven ? .green : .gray)
+                            Text("I provide my consent to DocuVault to fetch my documents.")
+                                .font(.footnote)
+                                .foregroundColor(.primary)
+                        }
                     }
-                }) {
-                    Text("GET DOCUMENT")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.purple)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                }
-                .disabled(!isConsentGiven || licenseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .opacity((isConsentGiven && !licenseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) ? 1.0 : 0.5)
-                .padding(.top)
+                    
+                    Button {
+                         triggerSuccessAnimation {
+                             if let details = documentStore.getDocumentDetails(for: documentName) {
+                                 let newDoc = Document(
+                                     name: documentName,
+                                     issuer: details.issuer,
+                                     logoAsset: details.logoAsset,
+                                     hasVersionHistory: true,
+                                     fileURL: nil
+                                 )
+                                 documentStore.addDocument(newDoc)
+                                 dismiss()
+                             }
+                         }
+                     } label: {
+                         Text("GET DOCUMENT")
+                             .frame(maxWidth: .infinity)
+                             .padding()
+                             .background(Color.purple)
+                             .foregroundColor(.white)
+                             .cornerRadius(12)
+                     }
+                     .disabled(!isConsentGiven ||
+                               licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
+                     .opacity((isConsentGiven &&
+                               !licenseNumber.trimmingCharacters(in: .whitespaces).isEmpty)
+                              ? 1.0 : 0.5)
+                     .padding(.top)
 
-                Spacer()
+                     Spacer()
+                 }
+                 .padding()
+             }
+
+            // Success overlay
+            if showSuccessOverlay {
+                Color.black.opacity(0.5).ignoresSafeArea()
+                Image(systemName: "checkmark.circle.fill")
+                    .resizable()
+                    .frame(width: 120, height: 120)
+                    .foregroundColor(.green)
+                    .scaleEffect(showSuccessOverlay ? 1.0 : 0.5)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.6),
+                               value: showSuccessOverlay)
             }
-            .padding()
         }
         .navigationTitle("Get Document")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+
+    private func triggerSuccessAnimation(andThen completion: @escaping ()->Void) {
+        showSuccessOverlay = true
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        AudioServicesPlaySystemSound(1104)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation { showSuccessOverlay = false }
+            completion()
+        }
     }
 }
 struct IssuerDocumentsView: View {
