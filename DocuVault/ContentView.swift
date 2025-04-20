@@ -7,6 +7,36 @@
 import SwiftUI
 import JWTDecode
 
+struct NoBounceScrollView<Content: View>: UIViewRepresentable {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.bounces = false
+        scrollView.showsVerticalScrollIndicator = false
+        
+        let hostingController = UIHostingController(rootView: content)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(hostingController.view)
+        
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            hostingController.view.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        
+        return scrollView
+    }
+    
+    func updateUIView(_ uiView: UIScrollView, context: Context) {}
+}
+
 struct ContentView: View {
     var body: some View {
         TabView {
@@ -66,9 +96,8 @@ struct HomeView: View {
             }
             .padding()
             .background(Color("AppPrimary"))
-            //.ignoresSafeArea(edges: .top)
             
-            ScrollView {
+            NoBounceScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     VStack {
                         HStack {
