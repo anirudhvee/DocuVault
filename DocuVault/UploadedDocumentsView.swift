@@ -13,6 +13,8 @@ struct UploadedDocumentsView: View {
     @State private var showingFileImporter = false
     @State private var newDocIssuer = ""
     @State private var showingAddOptions = false
+    @State private var mostRecentVersion: DocumentVersion? = nil
+
 
 
     var body: some View {
@@ -69,7 +71,8 @@ struct UploadedDocumentsView: View {
             .listStyle(.plain)
             .navigationTitle("My Documents")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing)
+                {
                     Menu {
                         Button("Scan Document", systemImage: "camera.fill") {
                             showingScanner = true
@@ -95,6 +98,9 @@ struct UploadedDocumentsView: View {
 
                 Button("Cancel", role: .cancel) {}
             }
+            .sheet(item: $selectedVersionImage) { image in
+                PDFViewer(image: image)
+            }
 
             .sheet(isPresented: $showingScanner) {
                 DocumentCameraView { scannedImage in
@@ -114,6 +120,7 @@ struct UploadedDocumentsView: View {
                         Button("Save") {
                             if let image = newDocumentImage {
                                 let version = DocumentVersion(image: image, date: Date())
+                                mostRecentVersion = version
                                 if let index = uploadedDocs.firstIndex(where: { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == newDocName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() && $0.issuer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == newDocIssuer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }) {
                                     uploadedDocs[index].versions.insert(version, at: 0)
                                 } else {
