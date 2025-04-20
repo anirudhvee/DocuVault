@@ -9,16 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image(systemName: "globe")
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                Text("Hello, world!")
+
+                NavigationLink(destination: LoginView()) {
+                    Text("Go to Login")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.purple)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal, 40)
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
 }
+
