@@ -15,7 +15,12 @@ struct SearchDocumentView: View {
         Document(name: "W-2", issuer: "IRS", logoAsset: "irs", hasVersionHistory: true, fileURL: nil),
         Document(name: "Birth Certificate", issuer: "State of California", logoAsset: "caliseal", hasVersionHistory: true, fileURL: nil),
         Document(name: "Social Security Card", issuer: "SSA", logoAsset: "ssa", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil)
+        Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil),
+        Document(
+            name: "Snap EBT",
+            issuer: "California Department of Social Services",
+            logoAsset: "cdss", // Add this asset to your Assets.xcassets folder
+            hasVersionHistory: true, fileURL: nil)
     ]
     
     init(initialSearch: String = "") {

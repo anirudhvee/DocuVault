@@ -16,7 +16,9 @@ class DocumentStore: ObservableObject {
         "W-2": ("IRS", "irs"),
         "Birth Certificate": ("State of California", "caliseal"),
         "Social Security Card": ("SSA", "ssa"),
-        "Degree Certificate": ("University of California, Davis", "ucdavis")
+        "Degree Certificate": ("University of California, Davis", "ucdavis"),
+        "Snap EBT": ("California Department of Social Services", "cdss")
+        
     ]
     
     init() {
