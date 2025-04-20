@@ -65,7 +65,7 @@ struct HomeView: View {
                 Spacer()
             }
             .padding()
-            .background(Color.purple)
+            .background(Color("AppPrimary"))
             //.ignoresSafeArea(edges: .top)
             
             ScrollView {
@@ -101,7 +101,7 @@ struct HomeView: View {
                         .padding(.horizontal)
                         .padding(.bottom)
                     }
-                    .background(Color.purple)
+                    .background(Color("AppPrimary"))
                     .padding(.bottom, 10)
                     
                     // Issued Documents
@@ -145,7 +145,7 @@ struct HomeView: View {
                                 // action
                             }
                             .padding(8)
-                            .background(Color.purple)
+                            .background(Color("AppPrimary"))
                             .foregroundColor(.white)
                             .cornerRadius(10)
                         }
@@ -155,13 +155,13 @@ struct HomeView: View {
                         Image(systemName: "creditcard.fill")
                             .resizable()
                             .frame(width: 70, height: 50)
-                            .foregroundColor(.purple)
+                            .foregroundColor(Color("AppPrimary"))
                             .padding(.horizontal)
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.purple.opacity(0.1))
+                            .fill(Color("AppPrimary").opacity(0.1))
                     )
                     .padding(.horizontal)
                     
@@ -189,7 +189,7 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(Color.purple)
+                        .background(Color("AppPrimary"))
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         Spacer()
