@@ -103,9 +103,9 @@ struct IssuedDocumentsView: View {
                         
                         if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
                             selectedDocumentURL = IdentifiableURL(url: url)
-                            print("✅ Loaded PDF:", url)
+                           
                         } else {
-                            print("❌ PDF not found for:", fileName)
+               
                         }
                     }){
                         HStack {
@@ -132,25 +132,6 @@ struct IssuedDocumentsView: View {
                             Spacer()
                             
                             Menu {
-                                //                                Button("Open File") {
-                                //                                    let fileName = doc.name.lowercased()
-                                //                                        .replacingOccurrences(of: " ", with: "_")
-                                //                                        .replacingOccurrences(of: "'", with: "")
-                                //                                    if let docPath = Bundle.main.resourcePath?.appending("/Documents") {
-                                //                                        do {
-                                //                                            let files = try FileManager.default.contentsOfDirectory(atPath: docPath)
-                                //                                            print("📁 Available PDFs:", files)
-                                //                                        } catch {
-                                //                                            print("⚠️ Error reading Documents directory")
-                                //                                        }
-                                //                                    }
-                                //                                    if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
-                                //                                        selectedDocumentURL = IdentifiableURL(url: url)
-                                //                                        print("✅ Loaded PDF:", url)
-                                //                                    } else {
-                                //                                        print("❌ PDF not found for:", fileName)
-                                //                                    }
-                                //                                }
                                 
                                 if doc.hasVersionHistory {
                                     Button("View Previous Versions") {
