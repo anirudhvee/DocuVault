@@ -144,9 +144,16 @@ struct IssuedDocumentsView: View {
                                     documentStore.removeDocument(doc)
                                 }
                             } label: {
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(.degrees(90))
-                                    .foregroundColor(.gray)
+                                HStack {
+                                    Spacer(minLength: 0) // Fill horizontal space
+                                    Image(systemName: "ellipsis")
+                                        .rotationEffect(.degrees(90))
+                                        .font(.system(size: 22, weight: .medium))
+                                        .foregroundColor(.gray)
+                                        .frame(width: 88, height: 44) // Tap target size
+                                        .contentShape(Rectangle())
+                                }
+                                .frame(width: 60, alignment: .trailing)
                             }
                         }
                         .padding(.vertical, 5)
