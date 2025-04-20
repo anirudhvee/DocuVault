@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var documentStore = DocumentStore()
+    
     var body: some View {
         TabView {
             HomeView()
@@ -15,13 +17,13 @@ struct ContentView: View {
                     Text("Home")
                 }
             
-            Text("Search")
+            SearchDocumentView()
                 .tabItem {
                     Image(systemName: "magnifyingglass")
                     Text("Search")
                 }
             
-            Text("Issued")
+            IssuedDocumentsView()
                 .tabItem {
                     Image(systemName: "doc.plaintext.fill")
                     Text("Issued")
@@ -37,9 +39,9 @@ struct ContentView: View {
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
-                    
                 }
         }
+        .environmentObject(documentStore)
     }
 }
 

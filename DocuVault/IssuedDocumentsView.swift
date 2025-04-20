@@ -10,27 +10,14 @@ struct Document: Identifiable {
 }
 
 struct IssuedDocumentsView: View {
-    
-    // Temporary hardcoded sample documents
-    let allDocuments: [Document] = [
-        Document(name: "Driver's License", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Vehicle Registration", issuer: "California DMV", logoAsset: "dmv", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Health Insurance", issuer: "Anthem Blue Cross", logoAsset: "anthem", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Utility Bill", issuer: "PG&E", logoAsset: "pge", hasVersionHistory: true, fileURL: nil),
-        Document(name: "W-2", issuer: "IRS", logoAsset: "irs", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Birth Certificate", issuer: "State of California", logoAsset: "caliseal", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Social Security Card", issuer: "SSA", logoAsset: "ssa", hasVersionHistory: true, fileURL: nil),
-        Document(name: "Degree Certificate", issuer: "University of California, Davis", logoAsset: "ucdavis", hasVersionHistory: true, fileURL: nil)
-    ]
-
-    
+    @EnvironmentObject var documentStore: DocumentStore
     @State private var searchText = ""
     
     var filteredDocuments: [Document] {
         if searchText.isEmpty {
-            return allDocuments
+            return documentStore.documents
         } else {
-            return allDocuments.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+            return documentStore.documents.filter { $0.name.lowercased().contains(searchText.lowercased()) }
         }
     }
     
@@ -59,7 +46,6 @@ struct IssuedDocumentsView: View {
                                 .foregroundColor(.purple)
                         }
 
-
                         VStack(alignment: .leading) {
                             Text(doc.name)
                                 .font(.headline)
@@ -81,6 +67,10 @@ struct IssuedDocumentsView: View {
                                     print("View versions for \(doc.name)")
                                 }
                             }
+                            
+                            Button("Remove Document", role: .destructive) {
+                                documentStore.removeDocument(doc)
+                            }
                         } label: {
                             Image(systemName: "ellipsis")
                                 .rotationEffect(.degrees(90))
@@ -98,4 +88,5 @@ struct IssuedDocumentsView: View {
 
 #Preview {
     IssuedDocumentsView()
+        .environmentObject(DocumentStore())
 }

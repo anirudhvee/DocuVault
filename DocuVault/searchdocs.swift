@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct Document: Identifiable {
-    let id = UUID()
-    let name: String
-    let issuer: String
-    let logoAsset: String  // new logo asset name
-    let hasVersionHistory: Bool
-    let fileURL: URL?
-}
+//struct Document: Identifiable {
+//    let id = UUID()
+//    let name: String
+//    let issuer: String
+//    let logoAsset: String  // new logo asset name
+//    let hasVersionHistory: Bool
+//    let fileURL: URL?
+//}
 
 struct SearchDocumentView: View {
     @State private var searchText = ""
@@ -126,7 +126,8 @@ struct SearchDocumentView: View {
 struct GetDocumentView: View {
     let documentName: String
     @State private var licenseNumber = ""
-
+    @EnvironmentObject var documentStore: DocumentStore
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -161,7 +162,16 @@ struct GetDocumentView: View {
                 }
 
                 Button(action: {
-                    // Add backend logic here
+                    if let details = documentStore.getDocumentDetails(for: documentName) {
+                        let newDocument = Document(
+                            name: documentName,
+                            issuer: details.issuer,
+                            logoAsset: details.logoAsset,
+                            hasVersionHistory: true,
+                            fileURL: nil // We'll implement file handling later
+                        )
+                        documentStore.addDocument(newDocument)
+                    }
                 }) {
                     Text("GET DOCUMENT")
                         .frame(maxWidth: .infinity)
