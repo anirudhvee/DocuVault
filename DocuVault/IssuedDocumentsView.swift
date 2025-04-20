@@ -1,4 +1,38 @@
 import SwiftUI
+import QuickLook
+
+struct PDFPreviewController: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> QLPreviewController {
+        let controller = QLPreviewController()
+        controller.dataSource = context.coordinator
+        return controller
+    }
+
+    func updateUIViewController(_ controller: QLPreviewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(url: url)
+    }
+
+    class Coordinator: NSObject, QLPreviewControllerDataSource {
+        let url: URL
+
+        init(url: URL) {
+            self.url = url
+        }
+
+        func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+            return 1
+        }
+
+        func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+            return url as QLPreviewItem
+        }
+    }
+}
+
 
 struct Document: Identifiable {
     let id = UUID()
@@ -8,10 +42,17 @@ struct Document: Identifiable {
     var hasVersionHistory: Bool
     var fileURL: URL? // Placeholder, use real file later
 }
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
+}
 
 struct IssuedDocumentsView: View {
     @EnvironmentObject var documentStore: DocumentStore
     @State private var searchText = ""
+    @State private var selectedDocumentURL: IdentifiableURL? = nil
+
+    
     
     var filteredDocuments: [Document] {
         if searchText.isEmpty {
@@ -30,60 +71,93 @@ struct IssuedDocumentsView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
                     .padding(.horizontal)
-
+                
                 List(filteredDocuments) { doc in
-                    HStack {
-                        if let uiImage = UIImage(named: doc.logoAsset) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 40, height: 40)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } else {
-                            Image(systemName: "doc.text") // fallback system icon
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(.purple)
-                        }
-
-                        VStack(alignment: .leading) {
-                            Text(doc.name)
-                                .font(.headline)
-                            Text(doc.issuer)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
+                    Button(action: {
+                        let fileName = doc.name.lowercased()
+                            .replacingOccurrences(of: " ", with: "_")
+                            .replacingOccurrences(of: "'", with: "")
                         
-                        Menu {
-                            Button("Open File") {
-                                // TODO: Integrate QuickLook or UIDocumentInteractionController
-                                print("Open file for \(doc.name)")
-                            }
-                            
-                            if doc.hasVersionHistory {
-                                Button("View Previous Versions") {
-                                    // TODO: Navigate to version list
-                                    print("View versions for \(doc.name)")
-                                }
-                            }
-                            
-                            Button("Remove Document", role: .destructive) {
-                                documentStore.removeDocument(doc)
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis")
-                                .rotationEffect(.degrees(90))
-                                .foregroundColor(.gray)
+                        if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
+                            selectedDocumentURL = IdentifiableURL(url: url)
+                            print("✅ Loaded PDF:", url)
+                        } else {
+                            print("❌ PDF not found for:", fileName)
                         }
+                    }){
+                        HStack {
+                            if let uiImage = UIImage(named: doc.logoAsset) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } else {
+                                Image(systemName: "doc.text") // fallback system icon
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(.purple)
+                            }
+                            
+                            VStack(alignment: .leading) {
+                                Text(doc.name)
+                                    .font(.headline)
+                                Text(doc.issuer)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            
+                            Menu {
+//                                Button("Open File") {
+//                                    let fileName = doc.name.lowercased()
+//                                        .replacingOccurrences(of: " ", with: "_")
+//                                        .replacingOccurrences(of: "'", with: "")
+//                                    if let docPath = Bundle.main.resourcePath?.appending("/Documents") {
+//                                        do {
+//                                            let files = try FileManager.default.contentsOfDirectory(atPath: docPath)
+//                                            print("📁 Available PDFs:", files)
+//                                        } catch {
+//                                            print("⚠️ Error reading Documents directory")
+//                                        }
+//                                    }
+//                                    if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
+//                                        selectedDocumentURL = IdentifiableURL(url: url)
+//                                        print("✅ Loaded PDF:", url)
+//                                    } else {
+//                                        print("❌ PDF not found for:", fileName)
+//                                    }
+//                                }
+                                
+                                if doc.hasVersionHistory {
+                                    Button("View Previous Versions") {
+                                        // TODO: Navigate to version list
+                                        print("View versions for \(doc.name)")
+                                    }
+                                }
+                                
+                                Button("Remove Document", role: .destructive) {
+                                    documentStore.removeDocument(doc)
+                                }
+                            } label: {
+                                Image(systemName: "ellipsis")
+                                    .rotationEffect(.degrees(90))
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(.vertical, 5)
                     }
-                    .padding(.vertical, 5)
+                    .listStyle(PlainListStyle())
                 }
-                .listStyle(PlainListStyle())
+                .navigationTitle("Issued Documents")
+                .sheet(item: $selectedDocumentURL) { identifiable in
+                    PDFPreviewController(url: identifiable.url)
+                }
             }
-            .navigationTitle("Issued Documents")
+            
         }
     }
+
 }
 
 #Preview {
