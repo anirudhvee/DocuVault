@@ -3,24 +3,33 @@ import QuickLook
 
 struct PDFPreviewController: UIViewControllerRepresentable {
     let url: URL
+    let onDismiss: () -> Void
 
-    func makeUIViewController(context: Context) -> QLPreviewController {
-        let controller = QLPreviewController()
-        controller.dataSource = context.coordinator
-        return controller
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let previewController = QLPreviewController()
+        previewController.dataSource = context.coordinator
+
+        let navigationController = UINavigationController(rootViewController: previewController)
+        
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: context.coordinator, action: #selector(Coordinator.dismiss))
+        previewController.navigationItem.leftBarButtonItem = doneButton
+        
+        return navigationController
     }
 
-    func updateUIViewController(_ controller: QLPreviewController, context: Context) {}
+    func updateUIViewController(_ controller: UINavigationController, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(url: url)
+        return Coordinator(url: url, onDismiss: onDismiss)
     }
 
     class Coordinator: NSObject, QLPreviewControllerDataSource {
         let url: URL
+        let onDismiss: () -> Void
 
-        init(url: URL) {
+        init(url: URL, onDismiss: @escaping () -> Void) {
             self.url = url
+            self.onDismiss = onDismiss
         }
 
         func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
@@ -29,6 +38,20 @@ struct PDFPreviewController: UIViewControllerRepresentable {
 
         func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
             return url as QLPreviewItem
+        }
+
+        @objc func dismiss() {
+            onDismiss()
+        }
+
+        @objc func share() {
+            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+
+            if let topVC = UIApplication.shared.windows.first?.rootViewController?.presentedViewController {
+                topVC.present(activityVC, animated: true)
+            } else {
+                UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
+            }
         }
     }
 }
@@ -51,7 +74,7 @@ struct IssuedDocumentsView: View {
     @EnvironmentObject var documentStore: DocumentStore
     @State private var searchText = ""
     @State private var selectedDocumentURL: IdentifiableURL? = nil
-
+    
     
     
     var filteredDocuments: [Document] {
@@ -109,25 +132,25 @@ struct IssuedDocumentsView: View {
                             Spacer()
                             
                             Menu {
-//                                Button("Open File") {
-//                                    let fileName = doc.name.lowercased()
-//                                        .replacingOccurrences(of: " ", with: "_")
-//                                        .replacingOccurrences(of: "'", with: "")
-//                                    if let docPath = Bundle.main.resourcePath?.appending("/Documents") {
-//                                        do {
-//                                            let files = try FileManager.default.contentsOfDirectory(atPath: docPath)
-//                                            print("📁 Available PDFs:", files)
-//                                        } catch {
-//                                            print("⚠️ Error reading Documents directory")
-//                                        }
-//                                    }
-//                                    if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
-//                                        selectedDocumentURL = IdentifiableURL(url: url)
-//                                        print("✅ Loaded PDF:", url)
-//                                    } else {
-//                                        print("❌ PDF not found for:", fileName)
-//                                    }
-//                                }
+                                //                                Button("Open File") {
+                                //                                    let fileName = doc.name.lowercased()
+                                //                                        .replacingOccurrences(of: " ", with: "_")
+                                //                                        .replacingOccurrences(of: "'", with: "")
+                                //                                    if let docPath = Bundle.main.resourcePath?.appending("/Documents") {
+                                //                                        do {
+                                //                                            let files = try FileManager.default.contentsOfDirectory(atPath: docPath)
+                                //                                            print("📁 Available PDFs:", files)
+                                //                                        } catch {
+                                //                                            print("⚠️ Error reading Documents directory")
+                                //                                        }
+                                //                                    }
+                                //                                    if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf") {
+                                //                                        selectedDocumentURL = IdentifiableURL(url: url)
+                                //                                        print("✅ Loaded PDF:", url)
+                                //                                    } else {
+                                //                                        print("❌ PDF not found for:", fileName)
+                                //                                    }
+                                //                                }
                                 
                                 if doc.hasVersionHistory {
                                     Button("View Previous Versions") {
@@ -151,14 +174,19 @@ struct IssuedDocumentsView: View {
                 }
                 .navigationTitle("Issued Documents")
                 .sheet(item: $selectedDocumentURL) { identifiable in
-                    PDFPreviewController(url: identifiable.url)
+                    PDFPreviewController(
+                        url: identifiable.url,
+                        onDismiss: {
+                            selectedDocumentURL = nil
+                        }
+                    )
                 }
+                
             }
-            
         }
     }
-
 }
+
 
 #Preview {
     IssuedDocumentsView()
