@@ -5,7 +5,8 @@ import JWTDecode
 struct LoginView: View {
     @State private var userName: String?
     @State private var profileImageURL: String?
-    @State private var isLoggedIn: Bool = false
+    //@State private var isLoggedIn: Bool = false //used for testing, does not save across app restarts 
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
     var body: some View {
         VStack(spacing: 30) {
@@ -60,6 +61,7 @@ struct LoginView: View {
             .start { result in
                 switch result {
                 case .success(let credentials):
+                    isLoggedIn = true
                     print("✅ Logged in! Credentials: \(credentials)")
 
                     // Decode ID Token and extract user info
@@ -90,6 +92,7 @@ struct LoginView: View {
             .clearSession { result in
                 switch result {
                 case .success:
+                    isLoggedIn = false
                     print("✅ Logged out")
                     isLoggedIn = false
                     userName = nil

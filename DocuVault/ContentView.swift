@@ -15,16 +15,6 @@ struct ContentView: View {
                     .imageScale(.large)
                     .foregroundStyle(.tint)
                 Text("Hello, world!")
-
-                NavigationLink(destination: LoginView()) {
-                    Text("Go to Login")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.purple)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal, 40)
             }
             .padding()
         }

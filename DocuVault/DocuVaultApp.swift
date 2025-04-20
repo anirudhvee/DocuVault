@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct DocuVaultApp: App {
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if isLoggedIn {
+                ContentView() 
+            } else {
+                LoginView()
+            }
         }
     }
 }
