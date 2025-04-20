@@ -71,28 +71,30 @@ struct SearchDocumentView: View {
                                             .resizable()
                                             .frame(width: 30, height: 30)
                                             .foregroundColor(.green)
-                                            .padding(.leading)
 
                                         VStack(alignment: .leading) {
                                             Text(doc.name)
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
+                                                .foregroundColor(.blue)
                                             Text(issuer)
                                                 .font(.caption)
                                                 .foregroundColor(.gray)
                                         }
 
-                                        Spacer()
+                                        Spacer(minLength: 10) // Smaller spacer than full push
 
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.gray)
+                                            .padding(.trailing, 8) // Adds nice breathing room
                                     }
-                                    .padding(.vertical, 8)
+                                    .padding()
                                     .background(Color.white)
                                     .cornerRadius(12)
                                     .shadow(radius: 1)
                                     .padding(.horizontal)
                                 }
+                                
                             }
                         }
                         .padding(.top, 8)
