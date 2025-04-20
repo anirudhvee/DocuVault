@@ -27,7 +27,7 @@ struct ContentView: View {
                     Text("Issued")
                 }
             
-            Text("Uploaded")
+            UploadedDocumentsView()
                 .tabItem {
                     Image(systemName: "tray.and.arrow.down.fill")
                     Text("Uploaded")
