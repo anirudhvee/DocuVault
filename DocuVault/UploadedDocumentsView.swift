@@ -23,18 +23,32 @@ struct UploadedDocumentsView: View {
                     .listRowSeparator(.hidden)
                 } else {
                     ForEach(uploadedDocs) { doc in
-                        HStack(spacing: 14) {
-                            Image(uiImage: doc.image)
-                                .resizable()
-                                .frame(width: 45, height: 45)
-                                .cornerRadius(6)
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack(spacing: 14) {
+                                Image(uiImage: doc.latestVersion.image)
+                                    .resizable()
+                                    .frame(width: 45, height: 45)
+                                    .cornerRadius(6)
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(doc.name)
-                                    .font(.headline)
-                                Text(doc.issuer)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(doc.name)
+                                        .font(.headline)
+                                    Text(doc.issuer)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    Text("Updated: \(doc.latestVersion.date.formatted(date: .abbreviated, time: .shortened))")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if doc.versions.count > 1 {
+                                    Button(action: {
+                                        // Show version history sheet (to implement)
+                                    }) {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .foregroundColor(.purple)
+                                    }
+                                }
                             }
                         }
                         .padding(.vertical, 6)
@@ -70,12 +84,17 @@ struct UploadedDocumentsView: View {
 
                         Button("Save") {
                             if let image = newDocumentImage {
-                                let newDoc = UploadedDocument(
-                                    name: newDocName,
-                                    issuer: newDocIssuer,
-                                    image: image
-                                )
-                                uploadedDocs.append(newDoc)
+                                let version = DocumentVersion(image: image, date: Date())
+                                if let index = uploadedDocs.firstIndex(where: { $0.name == newDocName && $0.issuer == newDocIssuer }) {
+                                    uploadedDocs[index].versions.insert(version, at: 0)
+                                } else {
+                                    let newDoc = UploadedDocument(
+                                        name: newDocName,
+                                        issuer: newDocIssuer,
+                                        versions: [version]
+                                    )
+                                    uploadedDocs.append(newDoc)
+                                }
                                 resetNewDocFields()
                             }
                         }
@@ -108,9 +127,19 @@ struct UploadedDocumentsView: View {
 
 struct UploadedDocument: Identifiable {
     let id = UUID()
-    let name: String
-    let issuer: String
+    var name: String
+    var issuer: String
+    var versions: [DocumentVersion]
+
+    var latestVersion: DocumentVersion {
+        versions.first ?? DocumentVersion(image: UIImage(systemName: "doc")!, date: Date())
+    }
+}
+
+struct DocumentVersion: Identifiable {
+    let id = UUID()
     let image: UIImage
+    let date: Date
 }
 
 // MARK: - VisionKit Camera Wrapper
