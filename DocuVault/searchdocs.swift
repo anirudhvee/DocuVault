@@ -37,13 +37,13 @@ struct SearchDocumentView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("DocuVault")
+                    Text("Search for Documents")
                         .font(.largeTitle)
                         .bold()
                         .padding(.top, 50)
                         .padding(.horizontal)
 
-                    TextField("Search for documents", text: $searchText)
+                    TextField("Enter the name of a document to add", text: $searchText)
                         .padding()
                         .background(Color.white)
                         .cornerRadius(12)
