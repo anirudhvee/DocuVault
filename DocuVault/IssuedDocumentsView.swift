@@ -57,7 +57,7 @@ struct PDFPreviewController: UIViewControllerRepresentable {
 }
 
 
-struct Document: Identifiable {
+struct Document: Identifiable, Codable {
     let id = UUID()
     var name: String
     var issuer: String

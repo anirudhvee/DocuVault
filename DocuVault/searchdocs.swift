@@ -1,10 +1,3 @@
-//
-//  searchdocs.swift
-//  DocuVault
-//
-//  Created by Rohan Malige on 4/19/25.
-//
-
 import SwiftUI
 
 struct SearchDocumentView: View {

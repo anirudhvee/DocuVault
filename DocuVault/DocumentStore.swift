@@ -1,7 +1,11 @@
 import SwiftUI
 
 class DocumentStore: ObservableObject {
-    @Published var documents: [Document] = []
+    @Published var documents: [Document] = [] {
+        didSet {
+            saveDocuments()
+        }
+    }
     
     private let documentDetails: [String: (issuer: String, logoAsset: String)] = [
         "Driver's License": ("California DMV", "dmv"),
@@ -13,6 +17,23 @@ class DocumentStore: ObservableObject {
         "Social Security Card": ("SSA", "ssa"),
         "Degree Certificate": ("University of California, Davis", "ucdavis")
     ]
+    
+    init() {
+        loadDocuments()
+    }
+    
+    private func saveDocuments() {
+        if let encoded = try? JSONEncoder().encode(documents) {
+            UserDefaults.standard.set(encoded, forKey: "savedDocuments")
+        }
+    }
+    
+    private func loadDocuments() {
+        if let data = UserDefaults.standard.data(forKey: "savedDocuments"),
+           let decoded = try? JSONDecoder().decode([Document].self, from: data) {
+            documents = decoded
+        }
+    }
     
     func getDocumentDetails(for name: String) -> (issuer: String, logoAsset: String)? {
         return documentDetails[name]
