@@ -3,9 +3,9 @@ import Auth0
 import JWTDecode
 
 struct LoginView: View {
-    @State private var userName: String?
-    @State private var profileImageURL: String?
-    //@State private var isLoggedIn: Bool = false //used for testing, does not save across app restarts 
+    @AppStorage("userName") var userName: String = ""
+    @AppStorage("userPicture") var userPicture: String = ""
+    //@State private var isLoggedIn: Bool = false //used for testing, does not save across app restarts
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
     var body: some View {
@@ -13,21 +13,6 @@ struct LoginView: View {
             Text("Welcome to DocuVault")
                 .font(.title)
                 .bold()
-
-            if isLoggedIn, let name = userName, let picture = profileImageURL {
-                VStack(spacing: 10) {
-                    AsyncImage(url: URL(string: picture)) { image in
-                        image.resizable()
-                    } placeholder: {
-                        ProgressView()
-                    }
-                    .frame(width: 80, height: 80)
-                    .clipShape(Circle())
-
-                    Text("Hello, \(name)!")
-                        .font(.headline)
-                }
-            }
 
             Button(action: login) {
                 Text("Login")
@@ -39,17 +24,6 @@ struct LoginView: View {
             }
             .padding(.horizontal, 40)
 
-            Button(action: logout) {
-                Text("Logout")
-                    .foregroundColor(.purple)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.purple, lineWidth: 2)
-                    )
-            }
-            .padding(.horizontal, 40)
         }
         .padding()
     }
@@ -76,7 +50,7 @@ struct LoginView: View {
                     print("Picture URL: \(picture)")
 
                     userName = name
-                    profileImageURL = picture
+                    userPicture = picture
                     isLoggedIn = true
 
                 case .failure(let error):
@@ -95,8 +69,8 @@ struct LoginView: View {
                     isLoggedIn = false
                     print("✅ Logged out")
                     isLoggedIn = false
-                    userName = nil
-                    profileImageURL = nil
+                    userName = ""
+                    userPicture = ""
                 case .failure(let error):
                     print("❌ Logout failed: \(error)")
                 }

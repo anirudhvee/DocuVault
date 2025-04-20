@@ -5,6 +5,7 @@
 //  Created by Anirudh Venkatachalam on 4/19/25.
 //
 import SwiftUI
+import JWTDecode
 
 struct ContentView: View {
     var body: some View {
@@ -33,7 +34,7 @@ struct ContentView: View {
                     Text("Uploaded")
                 }
             
-            Text("Setting")
+            SettingsView()
                 .tabItem {
                     Image(systemName: "gearshape")
                     Text("Settings")
@@ -44,26 +45,39 @@ struct ContentView: View {
 }
 
 struct HomeView: View {
+    @AppStorage("userName") var userName: String = ""
+    @AppStorage("userPicture") var userPicture: String = ""
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack {
                     HStack {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Welcome, John Doe")
+                            Text("Welcome, \(userName.isEmpty ? "Guest" : userName)")
                                 .font(.title)
                                 .bold()
                                 .foregroundColor(.white)
-                            Text("Your")
+                            Text("Your documents are safe and sound")
                                 .foregroundColor(.white)
                                 .font(.subheadline)
                         }
                         Spacer()
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                            .foregroundColor(.white)
+                        if let url = URL(string: userPicture), !userPicture.isEmpty {
+                                    AsyncImage(url: url) { image in
+                                        image.resizable()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                                } else {
+                                    Image(systemName: "person.circle.fill")
+                                        .resizable()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                        .foregroundColor(.white)
+                                }
                     }
                     .padding()
                 }
