@@ -1,10 +1,13 @@
 import SwiftUI
 import VisionKit
+import PDFKit
 
 struct UploadedDocumentsView: View {
     @State private var uploadedDocs: [UploadedDocument] = []
     @State private var showingScanner = false
     @State private var showingInfoForm = false
+    @State private var showingVersionHistoryFor: UploadedDocument? = nil
+    @State private var selectedVersionImage: UIImage? = nil
     @State private var newDocumentImage: UIImage? = nil
     @State private var newDocName = ""
     @State private var newDocIssuer = ""
@@ -23,7 +26,9 @@ struct UploadedDocumentsView: View {
                     .listRowSeparator(.hidden)
                 } else {
                     ForEach(uploadedDocs) { doc in
-                        VStack(alignment: .leading, spacing: 6) {
+                        Button(action: {
+                            selectedVersionImage = doc.latestVersion.image
+                        }) {
                             HStack(spacing: 14) {
                                 Image(uiImage: doc.latestVersion.image)
                                     .resizable()
@@ -36,21 +41,23 @@ struct UploadedDocumentsView: View {
                                     Text(doc.issuer)
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
-                                    Text("Updated: \(doc.latestVersion.date.formatted(date: .abbreviated, time: .shortened))")
+                                    Text("Recently Updated: \(doc.latestVersion.date.formatted(date: .abbreviated, time: .shortened))")
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
                                 if doc.versions.count > 1 {
                                     Button(action: {
-                                        // Show version history sheet (to implement)
+                                        showingVersionHistoryFor = doc
                                     }) {
                                         Image(systemName: "clock.arrow.circlepath")
                                             .foregroundColor(.purple)
                                     }
+                                    .buttonStyle(BorderlessButtonStyle())
                                 }
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
                         .padding(.vertical, 6)
                     }
                     .onDelete(perform: deleteDocuments)
@@ -85,7 +92,7 @@ struct UploadedDocumentsView: View {
                         Button("Save") {
                             if let image = newDocumentImage {
                                 let version = DocumentVersion(image: image, date: Date())
-                                if let index = uploadedDocs.firstIndex(where: { $0.name == newDocName && $0.issuer == newDocIssuer }) {
+                                if let index = uploadedDocs.firstIndex(where: { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == newDocName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() && $0.issuer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == newDocIssuer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }) {
                                     uploadedDocs[index].versions.insert(version, at: 0)
                                 } else {
                                     let newDoc = UploadedDocument(
@@ -108,6 +115,46 @@ struct UploadedDocumentsView: View {
                             }
                         }
                     }
+                }
+            }
+            .sheet(item: $showingVersionHistoryFor) { doc in
+                NavigationView {
+                    List(doc.versions.dropFirst()) { version in
+                        HStack(spacing: 12) {
+                            Image(uiImage: version.image)
+                                .resizable()
+                                .frame(width: 45, height: 45)
+                                .cornerRadius(6)
+                            VStack(alignment: .leading) {
+                                Text("\(version.date.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.headline)
+                            }
+                            Spacer()
+                            NavigationLink(destination: PDFViewer(image: version.image)) {
+                                Image(systemName: "arrow.right.circle")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        .padding(.vertical, 6)
+                    }
+                    .navigationTitle("Previous Versions")
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Close") {
+                                showingVersionHistoryFor = nil
+                            }
+                        }
+                    }
+                }
+            }
+            .sheet(item: $selectedVersionImage) { image in
+                VStack {
+                    Spacer()
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+                    Spacer()
                 }
             }
         }
@@ -140,6 +187,41 @@ struct DocumentVersion: Identifiable {
     let id = UUID()
     let image: UIImage
     let date: Date
+}
+
+// MARK: - PDF Viewer
+struct PDFViewer: View {
+    var image: UIImage
+
+    var body: some View {
+        if let pdfData = imageToPDF(image: image), let doc = PDFDocument(data: pdfData) {
+            PDFKitView(pdfDocument: doc)
+        } else {
+            Text("Failed to generate PDF.")
+                .foregroundColor(.red)
+        }
+    }
+
+    func imageToPDF(image: UIImage) -> Data? {
+        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: image.size))
+        return pdfRenderer.pdfData { context in
+            context.beginPage()
+            image.draw(at: .zero)
+        }
+    }
+}
+
+struct PDFKitView: UIViewRepresentable {
+    let pdfDocument: PDFDocument
+
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.document = pdfDocument
+        pdfView.autoScales = true
+        return pdfView
+    }
+
+    func updateUIView(_ uiView: PDFView, context: Context) {}
 }
 
 // MARK: - VisionKit Camera Wrapper
@@ -181,6 +263,10 @@ struct DocumentCameraView: UIViewControllerRepresentable {
             print("Scan failed: \(error.localizedDescription)")
         }
     }
+}
+
+extension UIImage: Identifiable {
+    public var id: UUID { UUID() }
 }
 
 #Preview {
