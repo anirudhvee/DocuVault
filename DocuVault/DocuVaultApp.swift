@@ -18,6 +18,7 @@ struct DocuVaultApp: App {
                 LoginView()
             }
         }
+        
     }
 }
 
