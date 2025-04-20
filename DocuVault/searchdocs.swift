@@ -7,15 +7,6 @@
 
 import SwiftUI
 
-//struct Document: Identifiable {
-//    let id = UUID()
-//    let name: String
-//    let issuer: String
-//    let logoAsset: String  // new logo asset name
-//    let hasVersionHistory: Bool
-//    let fileURL: URL?
-//}
-
 struct SearchDocumentView: View {
     @State private var searchText = ""
     let Documents: [Document] = [
@@ -126,7 +117,9 @@ struct SearchDocumentView: View {
 struct GetDocumentView: View {
     let documentName: String
     @State private var licenseNumber = ""
+    @State private var isConsentGiven = false
     @EnvironmentObject var documentStore: DocumentStore
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ScrollView {
@@ -154,11 +147,16 @@ struct GetDocumentView: View {
                         .cornerRadius(8)
                 }
 
-                HStack {
-                    Image(systemName: "checkmark.square.fill")
-                        .foregroundColor(.green)
-                    Text("I provide my consent to DocuVault to fetch my documents.")
-                        .font(.footnote)
+                Button(action: {
+                    isConsentGiven.toggle()
+                }) {
+                    HStack {
+                        Image(systemName: isConsentGiven ? "checkmark.square.fill" : "square")
+                            .foregroundColor(isConsentGiven ? .green : .gray)
+                        Text("I provide my consent to DocuVault to fetch my documents.")
+                            .font(.footnote)
+                            .foregroundColor(.primary)
+                    }
                 }
 
                 Button(action: {
@@ -171,6 +169,7 @@ struct GetDocumentView: View {
                             fileURL: nil // We'll implement file handling later
                         )
                         documentStore.addDocument(newDocument)
+                        dismiss()
                     }
                 }) {
                     Text("GET DOCUMENT")
@@ -180,6 +179,8 @@ struct GetDocumentView: View {
                         .foregroundColor(.white)
                         .cornerRadius(12)
                 }
+                .disabled(!isConsentGiven || licenseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .opacity((isConsentGiven && !licenseNumber.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) ? 1.0 : 0.5)
                 .padding(.top)
 
                 Spacer()
